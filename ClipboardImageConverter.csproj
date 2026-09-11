@@ -11,4 +11,8 @@
 		<UseWindowsForms>true</UseWindowsForms>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="SkiaSharp" Version="4.152.0" />
+	</ItemGroup>
+
 </Project>
