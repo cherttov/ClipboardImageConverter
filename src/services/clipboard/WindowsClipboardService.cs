@@ -1,5 +1,7 @@
 ﻿#if WINDOWS
+using SkiaSharp;
 using System.Drawing.Imaging;
+using System.Windows.Forms;
 #endif
 
 namespace ClipboardImageConverter.src.services.clipboard
@@ -16,8 +18,8 @@ namespace ClipboardImageConverter.src.services.clipboard
 				if (image == null)
 					return null;
 
-				using var ms = new MemoryStream();
-				image.Save(ms, ImageFormat.Bmp);
+				using MemoryStream ms = new MemoryStream();
+				image.Save(ms, ImageFormat.Png);
 				return ms.ToArray();
 			}
 #endif
@@ -30,8 +32,16 @@ namespace ClipboardImageConverter.src.services.clipboard
 			if (data.Length == 0)
 				return;
 
-			using var ms = new MemoryStream(data);
-			Clipboard.SetImage(Image.FromStream(ms));
+			using SKBitmap skBitmap = SKBitmap.Decode(data);
+			if (skBitmap == null)
+				throw new InvalidOperationException("Failed to decode image data for clipboard.");
+
+			using SKImage skImage = SKImage.FromBitmap(skBitmap);
+			using SKData pngData = skImage.Encode(SKEncodedImageFormat.Png, 100);
+			using MemoryStream ms = new MemoryStream(pngData.ToArray());
+			using Bitmap bmp = new Bitmap(ms);
+
+			Clipboard.SetImage(bmp);
 #endif
 			return;
 		}
