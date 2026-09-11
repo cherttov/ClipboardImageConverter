@@ -4,7 +4,6 @@
 	{
 		PNG,
 		JPEG,
-		BMP,
 		WEBP
 	}
 }

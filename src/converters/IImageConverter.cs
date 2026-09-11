@@ -4,6 +4,6 @@ namespace ClipboardImageConverter.src.Converters
 {
 	public interface IImageConverter
 	{
-		byte[] ConvertToFormat(byte[] source, ImageFormat format);
+		byte[] ConvertToFormat(byte[] input, ImageFormat format);
 	}
 }

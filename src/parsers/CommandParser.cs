@@ -32,10 +32,6 @@ namespace ClipboardImageConverter.src.Parsers
 					targetFormat = ImageFormat.JPEG;
                     break;
 
-                case "bmp":
-					targetFormat = ImageFormat.BMP;
-                    break;
-
                 case "webp":
 					targetFormat = ImageFormat.WEBP;
                     break;
