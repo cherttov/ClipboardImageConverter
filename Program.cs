@@ -4,11 +4,15 @@ using ClipboardImageConverter.src.Models;
 using ClipboardImageConverter.src.Parsers;
 using ClipboardImageConverter.src.services.clipboard;
 using ClipboardImageConverter.src.services.file;
+using ImageConverter = ClipboardImageConverter.src.Converters.ImageConverter;
 
 namespace ClipboardImageConverter
 {
 	internal class Program
 	{
+#if WINDOWS
+		[STAThread]
+#endif
 		private static void Main(string[] args)
 		{
 			// CommandParser & Command record
