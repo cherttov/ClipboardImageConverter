@@ -1,4 +1,5 @@
 ﻿using ClipboardImageConverter.src.Converters;
+using ClipboardImageConverter.src.models;
 using ClipboardImageConverter.src.Models;
 using ClipboardImageConverter.src.services.clipboard;
 using ClipboardImageConverter.src.services.file;
@@ -22,15 +23,22 @@ namespace ClipboardImageConverter.src.Commands
 
 		public void Execute(Command command)
 		{
-			byte[]? imgData = _clipboard.GetClipboardImageData();
-			if (imgData == null)
-				throw new ArgumentNullException("Clipboard contains no image data.");
+			ClipboardImageResult? clipData = _clipboard.GetClipboardImageData();
+			if (clipData == null)
+				throw new ArgumentNullException("Clipboard contains no image file data.");
 
-			byte[] convertedImg = _converter.ConvertToFormat(imgData, command.TargetFormat);
+			byte[] converted = _converter.ConvertToFormat(clipData.Data, command.TargetFormat);
+			string ext = command.TargetFormat switch
+			{
+				ImageFormat.PNG => ".png",
+				ImageFormat.JPEG => ".jpg",
+				ImageFormat.WEBP => ".webp",
+				_ => throw new NotSupportedException()
+			};
 
-			_clipboard.PushClipboardData(convertedImg);
+			_clipboard.PushClipboardData(converted, ext, clipData.BaseName);
 			if (command.DestinationPath != null)
-				_file.SaveImage(convertedImg, command.DestinationPath);
+				_file.SaveImage(converted, command.DestinationPath);
 		}
 	}
 }

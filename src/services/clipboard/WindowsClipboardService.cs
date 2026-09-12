@@ -1,49 +1,71 @@
 ﻿#if WINDOWS
 using SkiaSharp;
+using System.Collections.Specialized;
 using System.Drawing.Imaging;
-using System.Windows.Forms;
+using Clipboard = System.Windows.Forms.Clipboard;
 #endif
+using ClipboardImageConverter.src.models;
 
 namespace ClipboardImageConverter.src.services.clipboard
 {
 	public class WindowsClipboardService : IClipboardService
 	{
 		
-		public byte[]? GetClipboardImageData()
+		public ClipboardImageResult? GetClipboardImageData()
 		{
 #if WINDOWS
-			if (Clipboard.ContainsImage())
+			if (Clipboard.ContainsFileDropList())
 			{
-				using Image? image = Clipboard.GetImage()!;
-				if (image == null)
-					return null;
+				StringCollection files = Clipboard.GetFileDropList();
+				if (files.Count > 0 && files[0] != null && File.Exists(files[0]))
+				{
+					byte[] bytes = File.ReadAllBytes(files[0]!);
+					if (IsValidImage(bytes))
+						return new ClipboardImageResult(bytes, Path.GetFileNameWithoutExtension(files[0]!));
+				}
 
-				using MemoryStream ms = new MemoryStream();
-				image.Save(ms, ImageFormat.Png);
-				return ms.ToArray();
+				return null;
 			}
 #endif
 			return null;
 		}
 
-		public void PushClipboardData(byte[] data)
+		public void PushClipboardData(byte[] data, string ext, string origName)
 		{
 #if WINDOWS
 			if (data.Length == 0)
 				return;
 
-			using SKBitmap skBitmap = SKBitmap.Decode(data);
-			if (skBitmap == null)
-				throw new InvalidOperationException("Failed to decode image data for clipboard.");
+			// Creating app temp path
+			string appTempPath = Path.Combine(Path.GetTempPath(), "ClipboardImageConverter");
+			Directory.CreateDirectory(appTempPath);
 
-			using SKImage skImage = SKImage.FromBitmap(skBitmap);
-			using SKData pngData = skImage.Encode(SKEncodedImageFormat.Png, 100);
-			using MemoryStream ms = new MemoryStream(pngData.ToArray());
-			using Bitmap bmp = new Bitmap(ms);
+			// Clearing app themp path
+			foreach (string file in Directory.GetFiles(appTempPath))
+			{
+				try { File.Delete(file); } catch { }
+			}
 
-			Clipboard.SetImage(bmp);
+			// Creating temp file
+			string tempPath = Path.Combine(appTempPath, $"{origName}{ext}");
+			File.WriteAllBytes(tempPath, data);
+
+			Console.WriteLine(tempPath);
+
+			// Copying to clipboard the temp file
+			StringCollection files = new();
+			files.Add(tempPath);
+			Clipboard.SetFileDropList(files);
 #endif
 			return;
 		}
+
+#if WINDOWS
+		private static bool IsValidImage(byte[] data)
+		{
+			using SKBitmap? bitmap = SKBitmap.Decode(data);
+			return bitmap != null;
+		}
+#endif
 	}
 }

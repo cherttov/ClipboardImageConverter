@@ -1,13 +1,15 @@
-﻿namespace ClipboardImageConverter.src.services.clipboard
+﻿using ClipboardImageConverter.src.models;
+
+namespace ClipboardImageConverter.src.services.clipboard
 {
 	public class LinuxClipboardService : IClipboardService
 	{
-		public byte[]? GetClipboardImageData()
+		public ClipboardImageResult? GetClipboardImageData()
 		{
 			throw new NotImplementedException();
 		}
 
-		public void PushClipboardData(byte[] data)
+		public void PushClipboardData(byte[] data, string ext, string origName)
 		{
 			throw new NotImplementedException();
 		}
