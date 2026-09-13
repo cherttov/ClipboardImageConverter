@@ -5,23 +5,30 @@ using System.Drawing.Imaging;
 using Clipboard = System.Windows.Forms.Clipboard;
 #endif
 using ClipboardImageConverter.src.models;
+using ClipboardImageConverter.src.services.file;
 
 namespace ClipboardImageConverter.src.services.clipboard
 {
 	public class WindowsClipboardService : IClipboardService
 	{
-		
+		private IFileService _fileService;
+
+		public WindowsClipboardService(IFileService fileService)
+		{
+			_fileService = fileService;
+		}
+
 		public ClipboardImageResult? GetClipboardImageData()
 		{
 #if WINDOWS
 			if (Clipboard.ContainsFileDropList())
 			{
 				StringCollection files = Clipboard.GetFileDropList();
-				if (files.Count > 0 && files[0] != null && File.Exists(files[0]))
+				if (files.Count > 0 && files[0] != null && _fileService.FileExists(files[0]!))
 				{
-					byte[] bytes = File.ReadAllBytes(files[0]!);
+					byte[] bytes = _fileService.ReadAllBytes(files[0]!);
 					if (IsValidImage(bytes))
-						return new ClipboardImageResult(bytes, Path.GetFileNameWithoutExtension(files[0]!));
+						return new ClipboardImageResult(bytes, _fileService.GetFileNameWithoutExtension(files[0]!));
 				}
 
 				return null;
@@ -37,20 +44,15 @@ namespace ClipboardImageConverter.src.services.clipboard
 				return;
 
 			// Creating app temp path
-			string appTempPath = Path.Combine(Path.GetTempPath(), "ClipboardImageConverter");
-			Directory.CreateDirectory(appTempPath);
+			string appTempPath = _fileService.GetAppTempPath();
+			_fileService.CreateDirectory(appTempPath);
 
 			// Clearing app themp path
-			foreach (string file in Directory.GetFiles(appTempPath))
-			{
-				try { File.Delete(file); } catch { }
-			}
+			_fileService.ClearDirectory(appTempPath);
 
 			// Creating temp file
 			string tempPath = Path.Combine(appTempPath, $"{origName}{ext}");
-			File.WriteAllBytes(tempPath, data);
-
-			Console.WriteLine(tempPath);
+			_fileService.WriteAllBytes(tempPath, data);
 
 			// Copying to clipboard the temp file
 			StringCollection files = new();

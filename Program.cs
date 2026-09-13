@@ -22,11 +22,14 @@ namespace ClipboardImageConverter
 			if (command == null)
 				throw new ArgumentNullException("Command variable is null (Parsing failed).");
 
+			// FileService
+			IFileService fileService = new FileService();
+
 			// ClipboardService (based on OS)
 			IClipboardService clipboard;
 
 			if (OperatingSystem.IsWindows())
-				clipboard = new WindowsClipboardService();
+				clipboard = new WindowsClipboardService(fileService);
 			else if (OperatingSystem.IsLinux())
 				clipboard = new LinuxClipboardService();
 			else
