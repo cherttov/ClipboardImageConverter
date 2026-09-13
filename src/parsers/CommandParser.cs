@@ -24,28 +24,28 @@ namespace ClipboardImageConverter.src.Parsers
 					targetFormat = ImageFormat.PNG;
 					break;
 
-                case "jpg":
-                    targetFormat = ImageFormat.JPEG;
-                    break;
-
-                case "jpeg":
+				case "jpg":
 					targetFormat = ImageFormat.JPEG;
-                    break;
+					break;
 
-                case "webp":
+				case "jpeg":
+					targetFormat = ImageFormat.JPEG;
+					break;
+
+				case "webp":
 					targetFormat = ImageFormat.WEBP;
-                    break;
+					break;
 
 				default:
 					return null;
-            }
+			}
 
 			// Parsing path
 			if (rawDestPath != null)
 				destPath = Path.GetFullPath(rawDestPath);
 
-            // Return Command record
-            Command command = new Command
+			// Return Command record
+			Command command = new Command
 			{
 				TargetFormat = targetFormat,
 				DestinationPath = destPath

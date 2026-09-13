@@ -13,13 +13,13 @@ namespace ClipboardImageConverter.src.Commands
 		private IFileService _file;
 
 
-        public CommandProcessor(IClipboardService clipboard, IImageConverter converter, IFileService file)
+		public CommandProcessor(IClipboardService clipboard, IImageConverter converter, IFileService file)
 		{
 			_clipboard = clipboard;
 			_converter = converter;
 			_file = file;
 
-        }
+		}
 
 		public void Execute(Command command)
 		{
