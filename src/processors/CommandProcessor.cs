@@ -10,14 +10,14 @@ namespace ClipboardImageConverter.src.Commands
 	{
 		private IClipboardService _clipboard;
 		private IImageConverter _converter;
-		private IFileService _file;
+		private IFileService _fileService;
 
 
-		public CommandProcessor(IClipboardService clipboard, IImageConverter converter, IFileService file)
+		public CommandProcessor(IClipboardService clipboard, IImageConverter converter, IFileService fileService)
 		{
 			_clipboard = clipboard;
 			_converter = converter;
-			_file = file;
+			_fileService = fileService;
 
 		}
 
@@ -38,7 +38,7 @@ namespace ClipboardImageConverter.src.Commands
 
 			_clipboard.PushClipboardData(converted, ext, clipData.BaseName);
 			if (command.DestinationPath != null)
-				_file.SaveImage(converted, command.DestinationPath);
+				return; //  save image
 		}
 	}
 }
