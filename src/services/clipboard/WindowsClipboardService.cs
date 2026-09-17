@@ -1,7 +1,6 @@
 ﻿#if WINDOWS
 using SkiaSharp;
 using System.Collections.Specialized;
-using System.Drawing.Imaging;
 using Clipboard = System.Windows.Forms.Clipboard;
 #endif
 using ClipboardImageConverter.src.models;
@@ -21,27 +20,33 @@ namespace ClipboardImageConverter.src.services.clipboard
 		public ClipboardImageResult? GetClipboardImageData()
 		{
 #if WINDOWS
-			if (Clipboard.ContainsFileDropList())
-			{
-				StringCollection files = Clipboard.GetFileDropList();
-				if (files.Count > 0 && files[0] != null && _fileService.FileExists(files[0]!))
-				{
-					byte[] bytes = _fileService.ReadAllBytes(files[0]!);
-					if (IsValidImage(bytes))
-						return new ClipboardImageResult(bytes, _fileService.GetFileNameWithoutExtension(files[0]!));
-				}
+			if (!Clipboard.ContainsFileDropList())
+				throw new InvalidOperationException("Clipboard does not contain any copied files.");
 
-				return null;
-			}
+			StringCollection files = Clipboard.GetFileDropList();
+
+			if (files.Count == 0 || files[0] == null)
+				throw new InvalidOperationException("Clipboard file list is empty.");
+
+			if (!_fileService.FileExists(files[0]!))
+				throw new FileNotFoundException($"The copied file could not be found: {files[0]}");
+
+			byte[] bytes = _fileService.ReadAllBytes(files[0]!);
+
+			if (!IsValidImage(bytes))
+				throw new InvalidOperationException("The copied file is not a valid or supported image format.");
+
+			return new ClipboardImageResult(bytes, _fileService.GetFileNameWithoutExtension(files[0]!));
+#else
+			throw new PlatformNotSupportedException("This clipboard service is only supported on Windows.");
 #endif
-			return null;
 		}
 
 		public void PushClipboardData(byte[] data, string ext, string origName)
 		{
 #if WINDOWS
 			if (data.Length == 0)
-				return;
+				throw new ArgumentException("No image data was generated to push to the clipboard.");
 
 			// Creating app temp path
 			string appTempPath = _fileService.GetAppTempPath();

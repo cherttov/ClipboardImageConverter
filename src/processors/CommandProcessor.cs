@@ -25,7 +25,7 @@ namespace ClipboardImageConverter.src.Commands
 		{
 			ClipboardImageResult? clipData = _clipboard.GetClipboardImageData();
 			if (clipData == null)
-				throw new ArgumentNullException("Clipboard contains no image file data.");
+				throw new InvalidOperationException("Failed to retrieve valid image data from the clipboard.");
 
 			byte[] converted = _converter.ConvertToFormat(clipData.Data, command.TargetFormat);
 			string ext = command.TargetFormat switch
@@ -33,7 +33,7 @@ namespace ClipboardImageConverter.src.Commands
 				ImageFormat.PNG => ".png",
 				ImageFormat.JPEG => ".jpg",
 				ImageFormat.WEBP => ".webp",
-				_ => throw new NotSupportedException()
+				_ => throw new NotSupportedException($"The target format '{command.TargetFormat}' is not mapped to a valid file extension.")
 			};
 
 			_clipboard.PushClipboardData(converted, ext, clipData.BaseName);

@@ -15,7 +15,7 @@ namespace ClipboardImageConverter.src.Parsers
 		public Command? Parse(string[] args)
 		{
 			if (args.Length == 0)
-				return null;
+				throw new ArgumentException("No arguments provided.\nUsage: clic <format> [-o <path>]");
 
 			// Format argument
 			string rawFormat = args[0].ToLower();
@@ -26,7 +26,7 @@ namespace ClipboardImageConverter.src.Parsers
 				case "jpg": targetFormat = ImageFormat.JPEG; break;
 				case "jpeg": targetFormat = ImageFormat.JPEG; break;
 				case "webp": targetFormat = ImageFormat.WEBP; break;
-				default: return null;
+				default: throw new ArgumentException($"Invalid format '{rawFormat}'. Supported formats: png, jpg, jpeg, webp.");
 			}
 
 			// Output path argument
@@ -41,8 +41,12 @@ namespace ClipboardImageConverter.src.Parsers
 					}
 					else
 					{
-						return null;
+						throw new ArgumentException("Missing directory path after the '-o / --output' flag.");
 					}
+				}
+				else
+				{
+					throw new ArgumentException($"Unknown argument or flag '{args[1]}'.");
 				}
 			}
 
