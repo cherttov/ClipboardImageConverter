@@ -9,6 +9,7 @@
 		bool FileExists(string path);
 		byte[] ReadAllBytes(string path);
 		string GetFileNameWithoutExtension(string path);
+		string ResolvePath(string path);
 
 		// Writers/creators
 		void CreateDirectory(string path);

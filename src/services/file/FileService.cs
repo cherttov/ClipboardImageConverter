@@ -31,6 +31,20 @@
 			return Path.GetFileNameWithoutExtension(path);
 		}
 
+		public string ResolvePath(string path)
+		{
+			if (string.IsNullOrWhiteSpace(path))
+				return path;
+
+			if (path.StartsWith("~"))
+			{
+				string homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+				path = Path.Combine(homePath, path.TrimStart('~', '/', '\\'));
+			}
+
+			return Path.GetFullPath(path);
+		}
+
 		// Writers/creators
 		public void CreateDirectory(string path)
 		{
