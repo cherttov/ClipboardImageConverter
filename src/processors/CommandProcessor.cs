@@ -37,8 +37,11 @@ namespace ClipboardImageConverter.src.Commands
 			};
 
 			_clipboard.PushClipboardData(converted, ext, clipData.BaseName);
-			if (command.DestinationPath != null)
-				return; //  save image
+			if (!string.IsNullOrWhiteSpace(command.DestinationPath))
+			{
+				string finalPath = Path.Combine(command.DestinationPath, $"{clipData.BaseName}{ext}");
+				_fileService.WriteAllBytes(finalPath, converted);
+			}
 		}
 	}
 }

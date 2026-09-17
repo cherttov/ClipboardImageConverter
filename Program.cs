@@ -15,15 +15,15 @@ namespace ClipboardImageConverter
 #endif
 		private static void Main(string[] args)
 		{
+			// FileService
+			IFileService fileService = new FileService();
+
 			// CommandParser & Command record
-			ICommandParser parser = new CommandParser();
+			ICommandParser parser = new CommandParser(fileService);
 			Command? command = parser.Parse(args);
 
 			if (command == null)
 				throw new ArgumentNullException("Command variable is null (Parsing failed).");
-
-			// FileService
-			IFileService fileService = new FileService();
 
 			// ClipboardService (based on OS)
 			IClipboardService clipboard;
