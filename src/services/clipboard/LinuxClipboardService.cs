@@ -8,19 +8,11 @@ namespace ClipboardImageConverter.src.services.clipboard
 {
 	public class LinuxClipboardService : IClipboardService
 	{
+		// DisplayServer
 		private enum DisplayServer
 		{
 			Wayland,
 			X11
-		}
-
-		private readonly IFileService _fileService;
-		private readonly DisplayServer _displayServer;
-
-		public LinuxClipboardService(IFileService fileService)
-		{
-			_fileService = fileService;
-			_displayServer = DetectDisplayServer();
 		}
 
 		private static DisplayServer DetectDisplayServer()
@@ -28,6 +20,16 @@ namespace ClipboardImageConverter.src.services.clipboard
 			if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WAYLAND_DISPLAY"))) { return DisplayServer.Wayland; }
 			if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DISPLAY"))) { return DisplayServer.X11; }
 			throw new PlatformNotSupportedException("Could not determine the Linux display server.");
+		}
+
+		// LinuxClipboardService
+		private readonly IFileService _fileService;
+		private readonly DisplayServer _displayServer;
+
+		public LinuxClipboardService(IFileService fileService)
+		{
+			_fileService = fileService;
+			_displayServer = DetectDisplayServer();
 		}
 
 		public ClipboardImageResult? GetClipboardImageData()
@@ -72,14 +74,14 @@ namespace ClipboardImageConverter.src.services.clipboard
 
 			// Copying to clipboard the temp file
 			string fileUri = new Uri(tempPath).AbsoluteUri;
-			
+
 			if (_displayServer == DisplayServer.Wayland)
-				RunCommand("wl-copy", "--type text/uri-list", fileUri);
+				RunCommand("wl-copy", "--type text/uri-list", fileUri, false);
 			else
-				RunCommand("xclip", "-selection clipboard -i -t text/uri-list", fileUri);
+				RunCommand("xclip", "-selection clipboard -i -t text/uri-list", fileUri, false);
 		}
 
-		private static string RunCommand(string fileName, string arguments, string? input = null)
+		private static string RunCommand(string fileName, string arguments, string? input = null, bool waitForExit = true)
 		{
 			try
 			{
@@ -105,6 +107,9 @@ namespace ClipboardImageConverter.src.services.clipboard
 						streamWriter.Write(input);
 					}
 				}
+
+				if (!waitForExit)
+					return string.Empty;
 
 				string output = process.StandardOutput.ReadToEnd();
 				process.WaitForExit();

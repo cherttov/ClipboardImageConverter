@@ -7,6 +7,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyName>clic</AssemblyName>
+
+		<SelfContained>true</SelfContained>
+		<PublishSingleFile>true</PublishSingleFile>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
@@ -14,7 +18,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="SkiaSharp" Version="4.152.0" />
+		<PackageReference Include="SkiaSharp" Version="4.153.1" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.153.1" />
 	</ItemGroup>
 
 </Project>
