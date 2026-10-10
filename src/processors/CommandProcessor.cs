@@ -39,7 +39,9 @@ namespace ClipboardImageConverter.src.Commands
 			_clipboard.PushClipboardData(converted, ext, clipData.BaseName);
 			if (!string.IsNullOrWhiteSpace(command.DestinationPath))
 			{
-				string finalPath = Path.Combine(command.DestinationPath, $"{clipData.BaseName}{ext}");
+				string resolvedDir = _fileService.ResolvePath(command.DestinationPath);
+				_fileService.CreateDirectory(resolvedDir);
+				string finalPath = Path.Combine(resolvedDir, $"{clipData.BaseName}{ext}");
 				_fileService.WriteAllBytes(finalPath, converted);
 			}
 		}

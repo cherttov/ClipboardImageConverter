@@ -38,7 +38,7 @@ namespace ClipboardImageConverter
 				else if (OperatingSystem.IsMacOS())
 					clipboard = new MacosClipboardService();
 				else if (OperatingSystem.IsLinux())
-					clipboard = new LinuxClipboardService();
+					clipboard = new LinuxClipboardService(fileService);
 				else
 				{
 					PrintError("Your operating system is not currently supported.");
