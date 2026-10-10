@@ -5,6 +5,7 @@ using Clipboard = System.Windows.Forms.Clipboard;
 #endif
 using ClipboardImageConverter.src.models;
 using ClipboardImageConverter.src.services.file;
+using ClipboardImageConverter.src.services.image;
 
 namespace ClipboardImageConverter.src.services.clipboard
 {
@@ -33,7 +34,7 @@ namespace ClipboardImageConverter.src.services.clipboard
 
 			byte[] bytes = _fileService.ReadAllBytes(files[0]!);
 
-			if (!IsValidImage(bytes))
+			if (!ImageService.IsValidImage(bytes))
 				throw new InvalidOperationException("The copied file is not a valid or supported image format.");
 
 			return new ClipboardImageResult(bytes, _fileService.GetFileNameWithoutExtension(files[0]!));
@@ -66,13 +67,5 @@ namespace ClipboardImageConverter.src.services.clipboard
 #endif
 			return;
 		}
-
-#if WINDOWS
-		private static bool IsValidImage(byte[] data)
-		{
-			using SKBitmap? bitmap = SKBitmap.Decode(data);
-			return bitmap != null;
-		}
-#endif
 	}
 }

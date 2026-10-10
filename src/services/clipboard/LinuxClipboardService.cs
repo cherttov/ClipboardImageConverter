@@ -1,5 +1,6 @@
 ﻿using ClipboardImageConverter.src.models;
 using ClipboardImageConverter.src.services.file;
+using ClipboardImageConverter.src.services.image;
 using SkiaSharp;
 using System.Diagnostics;
 
@@ -38,7 +39,7 @@ namespace ClipboardImageConverter.src.services.clipboard
 				uriList = RunCommand("xclip", "-selection clipboard -o -t text/uri-list");
 
 			if (string.IsNullOrWhiteSpace(uriList) || !uriList.StartsWith("file://"))
-				throw new InvalidOperationException("Clipboard does not contain a copied file or xclip is not installed.");
+				throw new InvalidOperationException("Clipboard does not contain a copied file or xclip/wl-clipboard is not installed.");
 
 			string filePath = new Uri(uriList.Trim()).LocalPath;
 
@@ -47,7 +48,7 @@ namespace ClipboardImageConverter.src.services.clipboard
 
 			byte[] bytes = _fileService.ReadAllBytes(filePath);
 
-			if (!IsValidImage(bytes))
+			if (!ImageService.IsValidImage(bytes))
 				throw new InvalidOperationException("The copied file is not a valid or supported image format.");
 
 			return new ClipboardImageResult(bytes, _fileService.GetFileNameWithoutExtension(filePath));
@@ -76,12 +77,6 @@ namespace ClipboardImageConverter.src.services.clipboard
 				RunCommand("wl-copy", "--type text/uri-list", fileUri);
 			else
 				RunCommand("xclip", "-selection clipboard -i -t text/uri-list", fileUri);
-		}
-
-		private static bool IsValidImage(byte[] data)
-		{
-			using SKBitmap? bitmap = SKBitmap.Decode(data);
-			return bitmap != null;
 		}
 
 		private static string RunCommand(string fileName, string arguments, string? input = null)
